@@ -117,7 +117,6 @@ export default function Employees() {
     <ManagementLayout>
       <div className="relative h-[90.7vh] overflow-hidden">
         <div className="absolute w-full h-[100%] opacity-[0.2] bg-[url('https://www.hubsyntax.com/uploads/clock-wise.jpeg')] bg-cover bg-center rounded-xl shadow-md border border-gray-200"></div>
-
         <div className="relative z-20 h-full overflow-y-auto p-6">
           <h2 className="text-[20px] font-semibold mb-4">
             Employees — Time Tracking
@@ -276,7 +275,6 @@ export default function Employees() {
                             <p className="text-blue-600 font-medium">
                               Total Worked: {formatMinutes(totalWorked)}
                             </p>
-ddd
                             <div className="mt-2">
                               {emp.sessions?.map((s, i) => (
                                 <SessionCard key={i} session={s} />

@@ -11,6 +11,7 @@ import Employees from "./components/Pages/Management/Employees";
 import Account from "./components/Pages/Account";
 import { DateRangeProvider } from "./components/Pages/DateRangeContext";
 import ResetPassword from "./components/Pages/ResetPassword";
+import { useHeartbeat } from "./components/ui/UseHeartbeat";
 import NotFound from "./components/Pages/not-found";
 
 function ProtectedRoute({ component: Component, allowedRoles }) {
@@ -49,6 +50,9 @@ function HomeRedirect() {
 }
 
 function App() {
+
+  useHeartbeat();
+
   return (
     <DateRangeProvider>
       <Router>

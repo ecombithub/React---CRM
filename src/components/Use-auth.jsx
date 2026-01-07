@@ -108,7 +108,7 @@ export function useTotalStaff() {
   return useQuery({
     queryKey: ["total-staff"],
     queryFn: async () => {
-      const res = await fetch(api.auth.totalStaff.path, { 
+      const res = await fetch(api.auth.totalStaff.path, {
         credentials: "include",
       });
 
@@ -273,4 +273,3 @@ export function useDeleteTask() {
     },
   });
 }
-
