@@ -3,6 +3,7 @@ import ManagementLayout from "../ManagementLayout";
 import { useUserDetails } from "../../Use-auth";
 import { format } from "date-fns";
 import MonthlyCalendar from "../../ui/MonthlyCalendar";
+import { useDateRange } from "../DateRangeContext";
 
 function formatMinutes(minutes = 0) {
   if (!minutes || minutes < 60) return `${minutes} min`;
@@ -70,18 +71,25 @@ function SessionCard({ session }) {
 
 // Employees Component
 export default function Employees() {
+  const { start, end } = useDateRange();
   const { data: entries } = useUserDetails();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [openUserId, setOpenUserId] = useState(null);
 
   const handleSelectDate = (date) => setSelectedDate(date);
 
   const employees =
-    entries?.filter(
-      (entry) =>
-        entry.role === "employee" &&
-        new Date(entry.workDate).toDateString() === selectedDate.toDateString()
-    ) || [];
+    entries?.filter(entry => {
+      if (entry.role !== "employee") return false;
+
+      const workDate = new Date(entry.workDate);
+      return (
+        workDate >= start &&
+        workDate <= end &&
+        workDate.toDateString() === selectedDate.toDateString()
+      );
+    }) || [];
 
   const groupedByDate = employees.reduce((acc, employee) => {
     const date = format(new Date(employee.workDate), "EEEE dd MMM yyyy");
@@ -91,7 +99,12 @@ export default function Employees() {
   }, {});
 
   const allEmployees =
-    entries?.filter(entry => entry.role === "employee") || [];
+    entries?.filter(entry => {
+      if (entry.role !== "employee") return false;
+
+      const workDate = new Date(entry.workDate);
+      return workDate >= start && workDate <= end;
+    }) || [];
 
   const allGroupedByDate = allEmployees.reduce((acc, employee) => {
     const date = format(new Date(employee.workDate), "EEEE dd MMM yyyy");
@@ -128,7 +141,6 @@ export default function Employees() {
 
                     {groupedByDate[date].map((emp) => {
                       const isActive = selectedEmployeeId === emp.userId;
-
                       // calculate TOTAL WORKED per employee
                       const activeMinutes =
                         emp.sessions
@@ -218,7 +230,6 @@ export default function Employees() {
           </div>
           <div className="mt-8">
             <h2 className="text-[18px] font-semibold mb-3">All Tracked Days</h2>
-
             {Object.keys(allGroupedByDate).length > 0 ? (
               Object.keys(allGroupedByDate).map(date => (
                 <div key={date} className="mb-6">
@@ -237,23 +248,41 @@ export default function Employees() {
                     const totalWorked =
                       (emp.totalDurationMinutes ?? 0) + activeMinutes;
 
+                    const key = `${date}_${emp.userId}`;
+
                     return (
-                      <div
-                        key={emp.userId}
-                        className="border rounded p-4 mb-3 bg-white shadow-sm"
-                      >
-                        <p className="font-semibold text-gray-800">
-                          {emp.username} — {emp.userId}
-                        </p>
+                      <div key={key}>
+                        <div
+                          className={`border rounded p-4 mb-3 bg-white shadow-sm cursor-pointer transition
+                          ${openUserId === key
+                              ? "border-blue-500 shadow-md"
+                              : "border-gray-300 hover:border-blue-400 hover:shadow-md"
+                            }`}
+                          onClick={() =>
+                            setOpenUserId(openUserId === key ? null : key)
+                          }
+                        >
+                          <p className="font-semibold text-gray-800">
+                            {emp.username} — {key}
+                          </p>
+                        </div>
 
-                        <p className="text-blue-600 font-medium">
-                          Total Worked: {formatMinutes(totalWorked)}
-                        </p>
+                        <div
+                          className={`overflow-hidden transition-all duration-500 
+                        ${openUserId === key ? "max-h-[1000px]" : "max-h-0"}
+                        `}
+                        >
+                          <div className="border rounded p-4 mb-3 bg-gray-50 shadow">
+                            <p className="text-blue-600 font-medium">
+                              Total Worked: {formatMinutes(totalWorked)}
+                            </p>
 
-                        <div className="mt-2">
-                          {emp.sessions?.map((s, i) => (
-                            <SessionCard key={i} session={s} />
-                          ))}
+                            <div className="mt-2">
+                              {emp.sessions?.map((s, i) => (
+                                <SessionCard key={i} session={s} />
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );
@@ -264,7 +293,6 @@ export default function Employees() {
               <p className="text-gray-500">No tracked records.</p>
             )}
           </div>
-
         </div>
       </div>
     </ManagementLayout>
