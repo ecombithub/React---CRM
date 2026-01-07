@@ -26,7 +26,7 @@ function useLiveMinutes(startTime, endTime) {
     }
 
     update();
-    const interval = setInterval(update, 1000 * 60); 
+    const interval = setInterval(update, 1000 * 60);
     return () => clearInterval(interval);
   }, [startTime, endTime]);
 
@@ -90,6 +90,16 @@ export default function Employees() {
     return acc;
   }, {});
 
+  const allEmployees =
+    entries?.filter(entry => entry.role === "employee") || [];
+
+  const allGroupedByDate = allEmployees.reduce((acc, employee) => {
+    const date = format(new Date(employee.workDate), "EEEE dd MMM yyyy");
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(employee);
+    return acc;
+  }, {});
+
   return (
     <ManagementLayout>
       <div className="relative h-[90.7vh] overflow-hidden">
@@ -136,10 +146,9 @@ export default function Employees() {
                         <div key={emp.userId}>
                           <div
                             className={`border rounded p-4 mb-3 bg-white shadow-sm cursor-pointer transition
-                              ${
-                                isActive
-                                  ? "border-blue-500 shadow-md"
-                                  : "border-gray-300 hover:shadow-md hover:border-blue-400"
+                              ${isActive
+                                ? "border-blue-500 shadow-md"
+                                : "border-gray-300 hover:shadow-md hover:border-blue-400"
                               }`}
                             onClick={() =>
                               setSelectedEmployeeId(
@@ -156,9 +165,8 @@ export default function Employees() {
                           </div>
 
                           <div
-                            className={`overflow-hidden transition-all duration-500 ${
-                              isActive ? "max-h-[1000px]" : "max-h-0"
-                            }`}
+                            className={`overflow-hidden transition-all duration-500 ${isActive ? "max-h-[1000px]" : "max-h-0"
+                              }`}
                           >
                             <div className="mb-[12px] p-4 border border-gray-300 rounded bg-gray-50 shadow">
                               <div className="border border-gray-300 rounded-lg p-4 mb-4 bg-white shadow-sm hover:shadow-md transition">
@@ -208,6 +216,55 @@ export default function Employees() {
               <MonthlyCalendar onSelectDate={handleSelectDate} />
             </div>
           </div>
+          <div className="mt-8">
+            <h2 className="text-[18px] font-semibold mb-3">All Tracked Days</h2>
+
+            {Object.keys(allGroupedByDate).length > 0 ? (
+              Object.keys(allGroupedByDate).map(date => (
+                <div key={date} className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-800">{date}</h3>
+
+                  {allGroupedByDate[date].map(emp => {
+                    const activeMinutes =
+                      emp.sessions
+                        ?.filter(s => !s.endTime)
+                        ?.reduce((sum, s) => {
+                          const start = new Date(s.startTime);
+                          const now = new Date();
+                          return sum + Math.floor((now - start) / 60000);
+                        }, 0) ?? 0;
+
+                    const totalWorked =
+                      (emp.totalDurationMinutes ?? 0) + activeMinutes;
+
+                    return (
+                      <div
+                        key={emp.userId}
+                        className="border rounded p-4 mb-3 bg-white shadow-sm"
+                      >
+                        <p className="font-semibold text-gray-800">
+                          {emp.username} — {emp.userId}
+                        </p>
+
+                        <p className="text-blue-600 font-medium">
+                          Total Worked: {formatMinutes(totalWorked)}
+                        </p>
+
+                        <div className="mt-2">
+                          {emp.sessions?.map((s, i) => (
+                            <SessionCard key={i} session={s} />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No tracked records.</p>
+            )}
+          </div>
+
         </div>
       </div>
     </ManagementLayout>
