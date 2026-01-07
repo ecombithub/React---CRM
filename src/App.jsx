@@ -1,0 +1,117 @@
+import { Router, Route, Redirect, Switch } from "wouter";
+import Login from "./components/Pages/Login";
+import AdminDashboard from "./components/Pages/Admin/AdminDashboard";
+import ManagementDashboard from "./components/Pages/Management/ManagementDashboard";
+import EmployeeDashboard from "./components/Pages/Employees/EmployeeDashboard";
+import Projects from "./components/Pages/Projects";
+import TimeTracker from "./components/Pages/Employees/TimeTracker";
+import EmployeeProject from "./components/Pages/Employees/EmployeeProject";
+import { useUser } from "./components/Use-auth";
+import Employees from "./components/Pages/Management/Employees";
+import Account from "./components/Pages/Account";
+import { DateRangeProvider } from "./components/Pages/DateRangeContext";
+import ResetPassword from "./components/Pages/ResetPassword";
+import NotFound from "./components/Pages/not-found";
+
+function ProtectedRoute({ component: Component, allowedRoles }) {
+  const { data: user, isLoading } = useUser();
+
+  if (isLoading) return <div></div>;
+
+  if (!user) return <Redirect to="/login" />;
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    if (user.role === "admin") return <Redirect to="/admin" />;
+    if (user.role === "management") return <Redirect to="/management" />;
+    return <Redirect to="/dashboard" />;
+  }
+
+  return <Component />;
+}
+
+function HomeRedirect() {
+  const { data: user, isLoading } = useUser();
+
+  if (isLoading) return <div></div>;
+
+  if (!user) return <Redirect to="/login" />;
+
+  switch (user.role) {
+    case "admin":
+      return <Redirect to="/admin" />;
+    case "management":
+      return <Redirect to="/management" />;
+    case "employee":
+      return <Redirect to="/dashboard" />;
+    default:
+      return <Redirect to="/login" />;
+  }
+}
+
+function App() {
+  return (
+    <DateRangeProvider>
+      <Router>
+        <Switch>
+          <Route path="/login" component={Login} />
+
+          <Route path="/admin">
+            <ProtectedRoute component={AdminDashboard} allowedRoles={["admin"]} />
+          </Route>
+
+          <Route path="/management">
+            <ProtectedRoute
+              component={ManagementDashboard}
+              allowedRoles={["management"]}
+            />
+          </Route>
+
+          <Route path="/dashboard">
+            <ProtectedRoute
+              component={EmployeeDashboard}
+              allowedRoles={["employee"]}
+            />
+          </Route>
+
+          <Route path="/time-tracker">
+            <ProtectedRoute
+              component={TimeTracker}
+              allowedRoles={["employee"]}
+            />
+          </Route>
+
+          <Route path="/project">
+            <ProtectedRoute
+              component={EmployeeProject}
+              allowedRoles={["employee"]}
+            />
+          </Route>
+
+          <Route path="/projects">
+            <ProtectedRoute
+              component={Projects}
+              allowedRoles={["admin", "management"]}
+            />
+          </Route>
+          <Route path="/employees">
+            <ProtectedRoute
+              component={Employees}
+              allowedRoles={["admin", "management"]}
+            />
+          </Route>
+          <Route path="/account">
+            <ProtectedRoute
+              component={Account}
+              allowedRoles={["admin", "management", "employee"]}
+            />
+          </Route>
+          <Route path="/reset-password/:token" component={ResetPassword} />
+          <Route path="/" component={HomeRedirect} />
+          <Route path="*" component={NotFound} />
+        </Switch>
+      </Router>
+    </DateRangeProvider>
+  );
+}
+
+export default App;

@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Grandis Extended Medium";
+    src: url("./assets/fonts/534a3938931652c26019b76aff4e3679.eot");
+    src: url("./assets/fonts/534a3938931652c26019b76aff4e3679.eot?#iefix") format("embedded-opentype"),
+        url("./assets/fonts/534a3938931652c26019b76aff4e3679.woff") format("woff"),
+        url("./assets/fonts/534a3938931652c26019b76aff4e3679.woff2") format("woff2"),
+        url("./assets/fonts/534a3938931652c26019b76aff4e3679.ttf") format("truetype"),
+        url("./assets/fonts/534a3938931652c26019b76aff4e3679.svg#Grandis Extended Medium") format("svg");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'Grandis Extended Medium', sans-serif;
+}
+
+.input {
+    @apply w-full border rounded px-2 py-1 text-sm;
+}
+
+.date-filter .range-date-picker {
+    position: absolute;
+    left: 0 !important;
+}
+
+.taskEmployees-container .custom-dropdown .employes-dropdown {
+    left: -51px;
+}
+
+.relative.task-dropdown .employes-dropdown {
+    top: -281px;
+}
+
+.bulkdate-calender .calender-container {
+    top: -327px;
+    color: black;
+}
+
+.smart-date-task .date-formatess {
+    color: black;
+}
+
+.comment-dropdown .employes-dropdown {
+    left: -166px;
+    top: -265px;
+}
+
+.comment-dropdown svg {
+    width: 36px !important;
+    size: 32px !important;
+    height: 36px !important;
+    padding: 7px;
+}
+
+.calendar {
+  width: 330px;
+  padding: 16px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  font-family: system-ui, sans-serif;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.calendar-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.calendar-header button {
+  border: none;
+  background: #f3f4f6;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+}
+
+.calendar-header button:hover {
+  background: #e0e7ff;
+  color: #2563eb;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day-name {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.calendar-day {
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #f9fafb;
+}
+
+.calendar-day:hover {
+  background: #e5edff;
+  color: #2563eb;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-day.today {
+  background: #22c55e !important; 
+  color: white !important;
+  font-weight: 700;
+  border: 2px solid #16a34a;
+  box-shadow: 0 6px 12px rgba(34,197,94,0.35);
+}
+.calendar-day.today {
+  border: 2px solid #22c55e; 
+  background: #d1fae5;
+}
+
+.calendar-day.selected {
+  background: #8bd4f4; 
+  color: white;
+  font-weight: 700;
+  border: 2px solid #8bd4f4;
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.35);
+}
+
+.date-label {
+  font-size: 13px;
+  color: #6b7280;       
+  letter-spacing: 0.3px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.date-label span {
+  color: #111827;          
+  font-weight: 600;
+}
+
+.date-popup .calender-container {
+    top: 0;
+}
+
+.date-popup {
+    align-items: baseline;
+}
