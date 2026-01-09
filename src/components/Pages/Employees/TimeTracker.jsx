@@ -19,6 +19,7 @@ export default function TimeTracker() {
   const [now, setNow] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
@@ -27,16 +28,63 @@ export default function TimeTracker() {
   const handleSelectDate = (date) => setSelectedDate(date);
 
   // All entries of the user
-  const userEntries = entries?.filter(
-    (entry) => entry.userId === user?.userId
-  ) || [];
+  const userEntries =
+    entries?.filter(entry => entry.userId === user?.userId) || [];
 
-  // Filter only for TOP SECTION
-  const filteredEntries = userEntries.filter(
-    (entry) =>
-      new Date(entry.createdAt).toDateString() ===
-      selectedDate.toDateString()
-  );
+  // Filter by WORK DATE (not createdAt)
+  const filteredEntries = userEntries.filter(entry => {
+    const workDate = new Date(entry.workDate);
+    return workDate.toDateString() === selectedDate.toDateString();
+  });
+
+  function isSameDay(a, b) {
+    return a.toDateString() === b.toDateString();
+  }
+
+  function calculateUniqueMs(sessions = [], workDate, now = new Date()) {
+    if (!sessions.length) return 0;
+
+    const isToday = isSameDay(new Date(workDate), new Date());
+
+    const ranges = sessions
+      .map(s => {
+        const start = new Date(s.startTime).getTime();
+
+        let end;
+        if (s.endTime) {
+          end = new Date(s.endTime).getTime();
+        } else if (isToday) {
+          end = now.getTime(); // ✅ only today is live
+        } else {
+          return null; // ❌ ignore broken past sessions
+        }
+
+        return { start, end };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.start - b.start);
+
+    if (!ranges.length) return 0;
+
+    let total = 0;
+    let currentStart = ranges[0].start;
+    let currentEnd = ranges[0].end;
+
+    for (let i = 1; i < ranges.length; i++) {
+      const { start, end } = ranges[i];
+
+      if (start <= currentEnd) {
+        currentEnd = Math.max(currentEnd, end);
+      } else {
+        total += currentEnd - currentStart;
+        currentStart = start;
+        currentEnd = end;
+      }
+    }
+
+    total += currentEnd - currentStart;
+    return total;
+  }
 
   return (
     <EmployeeLayout>
@@ -45,7 +93,7 @@ export default function TimeTracker() {
           className="absolute w-full h-[100%] opacity-[0.2] bg-[url('https://www.hubsyntax.com/uploads/clock-wise.jpeg')] bg-cover bg-center rounded-xl shadow-md border border-gray-200"
         >
         </div>
-          <div className="relative z-20 h-full overflow-y-auto p-6">
+        <div className="relative z-20 h-full overflow-y-auto p-6">
           <h2 className="text-[20px] font-semibold mb-4">Time Tracker</h2>
 
           <div className="flex flex-col md:flex-row gap-6  z-[9999]">
@@ -60,8 +108,8 @@ export default function TimeTracker() {
                 </h3>
 
                 {filteredEntries.length > 0 ? (
-                  filteredEntries.map((entry) => {
-                    const formattedDate = new Date(entry.createdAt)
+                  filteredEntries.map(entry => {
+                    const formattedDate = new Date(entry.workDate)
                       .toLocaleDateString("en-GB", {
                         weekday: "long",
                         day: "2-digit",
@@ -70,14 +118,11 @@ export default function TimeTracker() {
                       })
                       .replace(/,/g, "");
 
-                    const totalMs = entry.sessions.reduce((acc, session) => {
-                      const startTime = new Date(session.startTime);
-                      const endTime = session.endTime
-                        ? new Date(session.endTime)
-                        : now;
-                      return acc + (endTime - startTime);
-                    }, 0);
-
+                    const totalMs = calculateUniqueMs(
+                      entry.sessions,
+                      entry.workDate,
+                      now
+                    );
                     return (
                       <div key={entry._id} className="border border-[#8bd4f4] rounded p-4">
                         <p className="text-gray-700 font-medium mb-1">
@@ -103,8 +148,8 @@ export default function TimeTracker() {
                   All Tracked Days
                 </h3>
 
-                {userEntries.map((entry) => {
-                  const formattedDate = new Date(entry.createdAt)
+                {userEntries.map(entry => {
+                  const formattedDate = new Date(entry.workDate)
                     .toLocaleDateString("en-GB", {
                       weekday: "long",
                       day: "2-digit",
@@ -113,14 +158,11 @@ export default function TimeTracker() {
                     })
                     .replace(/,/g, "");
 
-                  const totalMs = entry.sessions.reduce((acc, session) => {
-                    const startTime = new Date(session.startTime);
-                    const endTime = session.endTime
-                      ? new Date(session.endTime)
-                      : now;
-                    return acc + (endTime - startTime);
-                  }, 0);
-
+                  const totalMs = calculateUniqueMs(
+                    entry.sessions,
+                    entry.workDate,
+                    now
+                  );
                   return (
                     <div key={entry._id} className="border border-[#8bd4f4] rounded p-3 mb-2">
                       <p className="font-medium">{formattedDate}</p>

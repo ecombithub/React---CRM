@@ -113,6 +113,52 @@ export default function Employees() {
     return acc;
   }, {});
 
+  function calculateUniqueMinutes(sessions = [], workDate) {
+    if (!sessions.length) return 0;
+
+    const isToday =
+      new Date(workDate).toDateString() === new Date().toDateString();
+
+    const ranges = sessions
+      .map(s => {
+        const start = new Date(s.startTime).getTime();
+
+        let end;
+        if (s.endTime) {
+          end = new Date(s.endTime).getTime();
+        } else if (isToday) {
+          end = Date.now();
+        } else {
+          return null;
+        }
+
+        return { start, end };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.start - b.start);
+
+    if (!ranges.length) return 0;
+
+    let total = 0;
+    let currentStart = ranges[0].start;
+    let currentEnd = ranges[0].end;
+
+    for (let i = 1; i < ranges.length; i++) {
+      const { start, end } = ranges[i];
+
+      if (start <= currentEnd) {
+        currentEnd = Math.max(currentEnd, end);
+      } else {
+        total += currentEnd - currentStart;
+        currentStart = start;
+        currentEnd = end;
+      }
+    }
+
+    total += currentEnd - currentStart;
+    return Math.floor(total / 60000);
+  }
+
   return (
     <ManagementLayout>
       <div className="relative h-[90.7vh] overflow-hidden">
@@ -140,18 +186,8 @@ export default function Employees() {
 
                     {groupedByDate[date].map((emp) => {
                       const isActive = selectedEmployeeId === emp.userId;
-                      // calculate TOTAL WORKED per employee
-                      const activeMinutes =
-                        emp.sessions
-                          ?.filter((s) => !s.endTime)
-                          ?.reduce((sum, s) => {
-                            const start = new Date(s.startTime);
-                            const now = new Date();
-                            return sum + Math.floor((now - start) / 60000);
-                          }, 0) ?? 0;
+                     const totalWorked = calculateUniqueMinutes(emp.sessions, emp.workDate);
 
-                      const totalWorked =
-                        (emp.totalDurationMinutes ?? 0) + activeMinutes;
 
                       return (
                         <div key={emp.userId}>
@@ -235,18 +271,7 @@ export default function Employees() {
                   <h3 className="text-lg font-semibold mb-3 text-gray-800">{date}</h3>
 
                   {allGroupedByDate[date].map(emp => {
-                    const activeMinutes =
-                      emp.sessions
-                        ?.filter(s => !s.endTime)
-                        ?.reduce((sum, s) => {
-                          const start = new Date(s.startTime);
-                          const now = new Date();
-                          return sum + Math.floor((now - start) / 60000);
-                        }, 0) ?? 0;
-
-                    const totalWorked =
-                      (emp.totalDurationMinutes ?? 0) + activeMinutes;
-
+                    const totalWorked = calculateUniqueMinutes(emp.sessions, emp.workDate);
                     const key = `${date}_${emp.userId}`;
 
                     return (
