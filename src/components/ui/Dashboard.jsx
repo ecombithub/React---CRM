@@ -49,7 +49,7 @@ export default function Dashboard() {
                     <Upload className="w-4 h-4" />
                     Export
                 </button>
-                <div  className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-lg"  >
+                <div  className="flex items-center gap-2  hover:bg-gray-100 px-3 py-2 rounded-lg"  >
                     <img
                         src={user?.image}
                         alt="profile"
