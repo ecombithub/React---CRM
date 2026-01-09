@@ -1,13 +1,10 @@
-import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-export default function RichTextEditor() {
-  const [value, setValue] = useState("");
-
+export default function RichText({ value, onChange }) {
   const modules = {
     toolbar: [
-      [{ header: [1, 2, 3, false] }],
+       [{ header: [1, 2, 3, 4, 5, 6, false] }],
       ["bold", "italic", "underline", "strike", "blockquote"],
       [{ list: "ordered" }, { list: "bullet" }],
       [{ color: [] }, { background: [] }],
@@ -35,8 +32,8 @@ export default function RichTextEditor() {
     <div>
       <ReactQuill
         theme="snow"
-        value={value}
-        onChange={setValue}
+        value={value}     
+        onChange={onChange} 
         modules={modules}
         formats={formats}
         placeholder="Type something..."

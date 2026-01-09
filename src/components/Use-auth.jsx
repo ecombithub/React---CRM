@@ -252,8 +252,8 @@ export function useHoliday() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (body) => {
-      const res = await fetch(api.auth.holiday.path, {
-        method: api.auth.holiday.method,
+      const res = await fetch(api.auth.holiday.create.path, {
+        method: api.auth.holiday.create.method,
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -264,6 +264,60 @@ export function useHoliday() {
       return data;
     },
     onSuccess: () => queryClient.invalidateQueries(["holidays"]),
+  });
+}
+
+export function useTotalHolidays() {
+  return useQuery({
+    queryKey: ["holidays"],
+    queryFn: async () => {
+      const res = await fetch(api.auth.holiday.list.path, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch holidays");
+      return res.json();
+    },
+  });
+}
+
+export function useUpdateHoliday() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, body }) => {
+      const res = await fetch(api.auth.holiday.update(id).path, {
+        method: api.auth.holiday.update(id).method,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update holiday");
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries(["holidays"]),
+  });
+}
+
+export function useDeleteHoliday() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => {
+      const res = await fetch(api.auth.holiday.delete(id).path, {
+        method: api.auth.holiday.delete(id).method,
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete holiday");
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["holidays"]);
+    },
   });
 }
 

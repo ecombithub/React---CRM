@@ -1,16 +1,14 @@
-import { useEmployees, useProjects, useTotalStaff } from "../Use-auth";
+import { useEmployees, useProjects, useTotalStaff, useTotalHolidays } from "../Use-auth";
 import { useDateRange } from "../Pages/DateRangeContext";
-import { UserRound, TableCellsSplit, Star, AlignStartVertical, EllipsisVertical, TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { UserRound, Volleyball, Star, AlignStartVertical, EllipsisVertical, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, LabelList } from 'recharts';
 
 export default function MainDashBoard() {
     const { start, end } = useDateRange();
     const { data: totalStaff = [] } = useTotalStaff();
     const { data: projects = [] } = useProjects();
-
+    const { data: holidaysData, refetch } = useTotalHolidays();
     const activeEmployees = totalStaff.filter(e => e.status === "active");
-    console.log(activeEmployees)
-
     const filteredProjects = projects.filter((p) => {
         const createdAt = new Date(p.createdAt);
         return createdAt >= start && createdAt <= end;
@@ -80,10 +78,11 @@ export default function MainDashBoard() {
                 <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-green-100 text-sm font-medium">Total Applications</p>
-                            <p className="text-3xl font-bold">40</p>
+                            <p className="text-green-100 text-sm font-medium">Holidays Roster</p>
+                            <p className="text-3xl font-bold">{holidaysData?.holidays?.length || 0}
+                            </p>
                         </div>
-                        <TableCellsSplit className="w-12 h-12 opacity-80" />
+                        <Volleyball className="w-12 h-12 opacity-80" />
                     </div>
                 </div>
 

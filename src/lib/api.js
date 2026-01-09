@@ -65,8 +65,16 @@ export const api = {
       method: "POST",
     },
     holiday: {
-      path: `${BASE_URL}/api/holiday`,
-      method: "POST",
+      create: { path: `${BASE_URL}/api/holiday`, method: "POST" },
+      list: { path: `${BASE_URL}/api/get/holiday`, method: "GET" },
+      update: (id) => ({
+        path: `${BASE_URL}/api/holiday/${id}`,
+        method: "PUT",
+      }),
+      delete: (id) => ({
+        path: `${BASE_URL}/api/holiday/${id}`,
+        method: "DELETE",
+      }),
     },
   },
 };

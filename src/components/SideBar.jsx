@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useUser, useLogout } from "./Use-auth";
-import { LayoutDashboard, Users, CircleUserRound, Clock, LogOut, FolderGit, } from "lucide-react";
+import { LayoutDashboard, Users, CircleUserRound, Clock, LogOut, FolderGit,Tent } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/Button";
 
@@ -23,7 +23,7 @@ export function Sidebar() {
     { href: '/time-tracker', label: 'Time Tracker', icon: Clock, roles: ['employee'] },
     { href: '/project', label: 'Projects', icon: FolderGit, roles: ['employee'] },
     { href: '/account', label: 'Account', icon: CircleUserRound, roles: ['admin', 'management', 'employee', 'hr'] },
-    { href: '/holidays-and-policies', label: 'Holidays & Policies', icon: CircleUserRound, roles: ['hr'] },
+    { href: '/holidays-and-policies', label: 'Holidays & Policies', icon: Tent, roles: ['hr'] },
   ];
 
   const filteredLinks = links.filter(link => link.roles.includes(user.role));

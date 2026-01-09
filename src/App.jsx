@@ -13,7 +13,7 @@ import { DateRangeProvider } from "./components/Pages/DateRangeContext";
 import ResetPassword from "./components/Pages/ResetPassword";
 import HeartbeatAndAutoLogout from "./components/HeartbeatAndAutoLogout";
 import HrDashBoard from "./components/Pages/Hr/HrDashBoard";
-import HolidaysAndPolicies from "./components/Pages/Hr/Holidays & Policies";
+import HolidaysAndPolicies from "./components/Pages/Holidays & Policies";
 import NotFound from "./components/Pages/not-found";
 
 function ProtectedRoute({ component: Component, allowedRoles }) {
