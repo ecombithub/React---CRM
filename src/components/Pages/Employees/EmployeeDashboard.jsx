@@ -1,7 +1,7 @@
 import EmployeeLayout from "../EmployeeLayout";
-import { useUser, useProjects, useEmployees } from "../../Use-auth";
+import { useUser, useProjects, useTotalHolidays } from "../../Use-auth";
 import { useDateRange } from "../DateRangeContext";
-import { UserRound, TableCellsSplit, Star, AlignStartVertical, EllipsisVertical, TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { UserRound, TableCellsSplit, Star, Volleyball } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, LabelList } from 'recharts';
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -9,6 +9,7 @@ export default function EmployeeDashboard() {
   const { start, end } = useDateRange();
   const { data: projects = [] } = useProjects();
   const { data: user } = useUser();
+  const { data: holidaysData, refetch } = useTotalHolidays();
 
   // Filter projects in date range
   const filteredProjects = projects.filter(p => {
@@ -103,7 +104,16 @@ export default function EmployeeDashboard() {
               <UserRound className="w-12 h-12 opacity-80" />
             </div>
           </div>
-
+          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm font-medium">Holidays Roster</p>
+                <p className="text-3xl font-bold">{holidaysData?.holidays?.length || 0}
+                </p>
+              </div>
+              <Volleyball className="w-12 h-12 opacity-80" />
+            </div>
+          </div>
           <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
@@ -114,23 +124,13 @@ export default function EmployeeDashboard() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm font-medium">Total Projects</p>
                 <p className="text-3xl font-bold">{totalProjects}</p>
               </div>
               <Star className="w-12 h-12 opacity-80" />
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-100 text-sm font-medium">Upcoming Tasks</p>
-                <p className="text-3xl font-bold">{upcomingTasks}</p>
-              </div>
-              <AlignStartVertical className="w-12 h-12 opacity-80" />
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function EmployeeDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-        
+
       </div>
     </EmployeeLayout>
   );

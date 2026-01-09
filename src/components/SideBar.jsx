@@ -23,7 +23,7 @@ export function Sidebar() {
     { href: '/time-tracker', label: 'Time Tracker', icon: Clock, roles: ['employee'] },
     { href: '/project', label: 'Projects', icon: FolderGit, roles: ['employee'] },
     { href: '/account', label: 'Account', icon: CircleUserRound, roles: ['admin', 'management', 'employee', 'hr'] },
-    { href: '/holidays-and-policies', label: 'Holidays & Policies', icon: Tent, roles: ['hr'] },
+    { href: '/holidays-and-policies', label: 'Holidays & Policies', icon: Tent, roles: ['admin', 'management', 'employee', 'hr'] },
   ];
 
   const filteredLinks = links.filter(link => link.roles.includes(user.role));

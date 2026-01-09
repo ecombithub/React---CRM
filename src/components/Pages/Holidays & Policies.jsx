@@ -3,7 +3,7 @@ import HrLayout from "./HrLayout";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import ReactQuill from "../ui/RichText";
-import { useHoliday, useTotalHolidays, useUpdateHoliday, useDeleteHoliday } from "../Use-auth";
+import { useHoliday, useTotalHolidays, useUpdateHoliday, useDeleteHoliday, useUser } from "../Use-auth";
 import SucessToast from "../ui/SucessToast";
 import { Pencil, Trash2 } from "lucide-react";
 
@@ -20,10 +20,13 @@ export default function HolidaysAndPolicies() {
     const { data: holidaysData, refetch } = useTotalHolidays();
     const { mutate: updateHoliday } = useUpdateHoliday();
     const { mutate: deleteHoliday } = useDeleteHoliday();
+    const { data: user } = useUser();
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [editingIndex, setEditingIndex] = useState(null);
-
+    const [showPopup, setShowPopup] = useState(false);
+   
+    const isHR = user?.role === "hr";
     // Fetch existing holidays on mount
     useEffect(() => {
         if (holidaysData?.holidays) {
@@ -99,6 +102,7 @@ export default function HolidaysAndPolicies() {
     };
 
     const handleEdit = (index) => {
+        setShowPopup(true);
         const item = holidays[index];
         setForm({
             title: item.title,
@@ -136,103 +140,164 @@ export default function HolidaysAndPolicies() {
         });
     };
 
+    const holidaysByMonth = holidays.reduce((acc, holiday) => {
+        const date = new Date(holiday.date);
+        const monthKey = date.toLocaleString("default", {
+            month: "long",
+            year: "numeric",
+        });
+
+        if (!acc[monthKey]) {
+            acc[monthKey] = [];
+        }
+
+        acc[monthKey].push(holiday);
+        return acc;
+    }, {});
+
     return (
         <HrLayout>
             <div className="relative h-[90.7vh] bg-gray-50 overflow-hidden">
                 <div className="relative z-20 h-full overflow-y-auto p-6 space-y-8">
-                    <h3 className="text-lg font-semibold text-gray-800">Holidays & Policies</h3>
-                    <form
-                        onSubmit={handleHoliday}
-                        className="bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-3 gap-5 items-end"
-                    >
-                        <Input
-                            name="title"
-                            placeholder="Holiday Title"
-                            value={form.title}
-                            onChange={handleChange}
-                            required
-                            className="col-span-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#fbe5e9] transition duration-200"
-                        />
-                        <Input
-                            type="date"
-                            name="date"
-                            value={form.date}
-                            onChange={handleChange}
-                            required
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#fbe5e9] transition duration-200"
-                        />
-                        <select
-                            name="type"
-                            value={form.type}
-                            onChange={handleChange}
-                            className="col-span-1 md:col-span-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#fbe5e9] transition duration-200"
-                        >
-                            <option value="holiday">Holiday</option>
-                            <option value="policy">Policy</option>
-                            <option value="optional">Optional</option>
-                        </select>
+                   {isHR && ( <div>
+                        <Button onClick={() => setShowPopup(true)} className="flex items-center justify-center gap-2 mb-[10px] px-4 py-2 rounded-lg text-black bg-[#fbe5e9] hover:bg-[#fdf9fb] shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200" >
+                            Add New Holiday & Policy </Button>
+                        {showPopup && (
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-800">Holidays & Policies</h3>
+                                <form
+                                    onSubmit={handleHoliday}
+                                    className="bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-3 gap-5 items-end"
+                                >
+                                    <Input
+                                        name="title"
+                                        placeholder="Holiday Title"
+                                        value={form.title}
+                                        onChange={handleChange}
+                                        required
+                                        className="col-span-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#fbe5e9] transition duration-200"
+                                    />
+                                    <Input
+                                        type="date"
+                                        name="date"
+                                        value={form.date}
+                                        onChange={handleChange}
+                                        required
+                                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#fbe5e9] transition duration-200"
+                                    />
+                                    <select
+                                        name="type"
+                                        value={form.type}
+                                        onChange={handleChange}
+                                        className="col-span-1 md:col-span-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#fbe5e9] transition duration-200"
+                                    >
+                                        <option value="holiday">Holiday</option>
+                                        <option value="policy">Policy</option>
+                                        <option value="optional">Optional</option>
+                                    </select>
 
-                        <div className="col-span-3">
-                            <ReactQuill
-                                theme="snow"
-                                value={form.description}
-                                onChange={handleDescriptionChange}
-                                placeholder="Description (optional)"
-                                className="h-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbe5e9]"
-                            />
-                        </div>
+                                    <div className="col-span-3">
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={form.description}
+                                            onChange={handleDescriptionChange}
+                                            placeholder="Description (optional)"
+                                            className="h-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fbe5e9]"
+                                        />
+                                    </div>
 
-                        <div className="col-span-3 flex justify-end">
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-black bg-[#fbe5e9] hover:bg-[#fdf9fb] shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
-                            >
-                                {loading ? "Saving..." : editingIndex !== null ? "Update" : "Add"}
-                            </Button>
+                                    <div className="col-span-3 flex justify-end">
+                                        <Button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-black bg-[#fbe5e9] hover:bg-[#fdf9fb] shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
+                                        >
+                                            {loading ? "Saving..." : editingIndex !== null ? "Update" : "Add"}
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                setShowPopup(false);
+                                                setEditingIndex(null);
+                                                setForm({ title: "", date: "", description: "", type: "holiday" });
+                                            }}
+                                            className="flex items-center justify-center gap-2 px-4 py-2 ml-[10px] rounded-lg text-black bg-[#fbe5e9] hover:bg-[#fdf9fb] shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
+                                        >
+                                            Cancel
+                                        </Button>
 
-                        </div>
-                    </form>
-
+                                    </div>
+                                </form>
+                            </div>)}
+                    </div>)}
                     <div className="bg-white rounded-xl shadow-md p-6">
                         <h3 className="text-lg font-semibold mb-4">Holiday List</h3>
-                        {holidays.length === 0 ? (
+                        {Object.keys(holidaysByMonth).length === 0 ? (
                             <p className="text-gray-500 text-sm">No holidays added yet.</p>
                         ) : (
-                            <div className="space-y-3">
-                                {holidays.map((item, index) => (
+                            <div className="space-y-6">
+                                {Object.entries(holidaysByMonth).map(([month, monthHolidays]) => (
                                     <div
-                                        key={index}
-                                        className="flex justify-between items-start border rounded-lg p-4 hover:bg-gray-50"
+                                        key={month}
+                                        className="border rounded-xl p-5 bg-gray-50"
                                     >
-                                        <div>
-                                            <h3 className="font-medium text-gray-800">{item.title}</h3>
-                                            <p className="text-sm text-gray-500">
-                                                {new Date(item.date).toDateString()}
-                                            </p>
-
-                                            {item.description && (
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4">
+                                            {month}
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {monthHolidays.map((item, index) => (
                                                 <div
-                                                    className="text-sm text-gray-600 mt-1"
-                                                    dangerouslySetInnerHTML={{ __html: item.description }}
-                                                />
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                                                {item.type}
-                                            </span>
-                                            <div className="flex items-center gap-2">
-                                                <Pencil size={18}
-                                                    className="cursor-pointer text-blue-500"
-                                                    onClick={() => handleEdit(index)}
-                                                />
-                                                <Trash2 size={18}
-                                                    className="cursor-pointer text-red-500 hover:text-red-700"
-                                                    onClick={() => handleDelete(index)}
-                                                />
+                                                    key={item._id}
+                                                    className="flex justify-between items-start bg-white border rounded-lg p-4"
+                                                >
+                                                    <div>
+                                                        <h4 className="font-medium text-gray-800">
+                                                            {item.title}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-500">
+                                                            {new Date(item.date).toDateString()}
+                                                        </p>
 
-                                            </div>
+                                                        {item.description && (
+                                                            <div
+                                                                className="text-sm text-gray-600 mt-1"
+                                                                dangerouslySetInnerHTML={{
+                                                                    __html: item.description,
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                                                            {item.type}
+                                                        </span>
+
+                                                        <Pencil
+                                                            size={18}
+                                                            className="cursor-pointer text-blue-500"
+                                                            onClick={() =>
+                                                                handleEdit(
+                                                                    holidays.findIndex(
+                                                                        (h) => h._id === item._id
+                                                                    )
+                                                                )
+                                                            }
+                                                        />
+
+                                                        <Trash2
+                                                            size={18}
+                                                            className="cursor-pointer text-red-500 hover:text-red-700"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    holidays.findIndex(
+                                                                        (h) => h._id === item._id
+                                                                    )
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 ))}
@@ -240,7 +305,6 @@ export default function HolidaysAndPolicies() {
                         )}
                     </div>
                 </div>
-
                 {showToast && <SucessToast message={toastMessage} />}
             </div>
         </HrLayout>

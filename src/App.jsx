@@ -107,7 +107,7 @@ function App() {
           <Route path="/employees">
             <ProtectedRoute
               component={Employees}
-              allowedRoles={["admin", "management","hr"]}
+              allowedRoles={["admin", "management", "hr"]}
             />
           </Route>
           <Route path="/account">
@@ -119,7 +119,7 @@ function App() {
           <Route path="/holidays-and-policies">
             <ProtectedRoute
               component={HolidaysAndPolicies}
-              allowedRoles={["hr"]}
+               allowedRoles={["admin", "management", "employee", "hr"]}
             />
           </Route>
           <Route path="/reset-password/:token" component={ResetPassword} />
